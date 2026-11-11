@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "mentor",
+  "version": "1.0.0",
+  "description": "A learning mentor that teaches with Socratic questions and active recall, and keeps your progress between sessions.",
+  "author": {
+    "name": "ManGregory",
+    "url": "https://hman.pro"
+  },
+  "homepage": "https://github.com/ManGregory/hman-skills/tree/main/plugins/mentor",
+  "repository": "https://github.com/ManGregory/hman-skills",
+  "license": "MIT",
+  "keywords": ["learning", "education", "socratic", "active-recall", "feynman", "spaced-repetition"],
+  "skills": ["./skills/"]
+}

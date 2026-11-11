@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ManGregory/hman-skills/plugins/mentor/results.schema.json",
+  "title": "Mentor results (schema v1.0)",
+  "description": "Assessment history for one subtopic. One file per subtopic: {topic}/{subtopic}/results.json.",
+  "type": "object",
+  "required": ["schema_version", "topic", "subtopic", "sessions", "metadata"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "topic": { "type": "string", "minLength": 1 },
+    "subtopic": { "type": "string", "minLength": 1 },
+    "sessions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/session" }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["created", "last_updated"],
+      "properties": {
+        "created": { "type": "string", "description": "ISO 8601" },
+        "last_updated": { "type": "string", "description": "ISO 8601" }
+      }
+    }
+  },
+  "$defs": {
+    "stringList": { "type": "array", "items": { "type": "string" } },
+    "session": {
+      "type": "object",
+      "required": [
+        "session_id",
+        "timestamp_start",
+        "timestamp_end",
+        "duration_minutes",
+        "session_type",
+        "assessment",
+        "concepts_covered",
+        "areas_strong",
+        "areas_to_review",
+        "next_session"
+      ],
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "pattern": "^[0-9]{8}-[0-9]{6}-[a-z0-9]+$",
+          "description": "YYYYMMDD-HHMMSS-xxxx"
+        },
+        "timestamp_start": { "type": "string", "description": "ISO 8601" },
+        "timestamp_end": { "type": "string", "description": "ISO 8601" },
+        "duration_minutes": { "type": "number", "minimum": 0 },
+        "session_type": {
+          "enum": ["learning", "review", "practice", "assessment", "qna", "troubleshooting"]
+        },
+        "language": { "type": "string", "description": "Language the session was held in, e.g. en, uk" },
+        "assessment": {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "enum": ["quick_recap", "quiz", "feynman", "blurting", "comprehension", "full", "none"]
+            },
+            "score": { "type": "string", "pattern": "^[0-9.]+/[0-9.]+$", "description": "X/Y" },
+            "percentage": { "type": "number", "minimum": 0, "maximum": 100 }
+          }
+        },
+        "concepts_covered": { "$ref": "#/$defs/stringList" },
+        "areas_strong": { "$ref": "#/$defs/stringList" },
+        "areas_to_review": { "$ref": "#/$defs/stringList" },
+        "next_session": {
+          "type": "object",
+          "properties": {
+            "review_needed": { "$ref": "#/$defs/stringList" },
+            "ready_for": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

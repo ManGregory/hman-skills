@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "hman": {
+      "source": {
+        "source": "github",
+        "repo": "ManGregory/hman-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "mentor@hman": true
+  }
+}

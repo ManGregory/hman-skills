@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "hman",
+  "owner": {
+    "name": "ManGregory",
+    "url": "https://github.com/ManGregory"
+  },
+  "metadata": {
+    "description": "Open-source skills for Claude by hman.pro"
+  },
+  "plugins": [
+    {
+      "name": "mentor",
+      "source": "./plugins/mentor",
+      "description": "A learning mentor that teaches with Socratic questions and active recall, and keeps your progress between sessions.",
+      "category": "learning"
+    }
+  ]
+}

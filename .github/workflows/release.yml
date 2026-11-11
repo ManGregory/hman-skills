@@ -1,0 +1,67 @@
+name: Release
+
+# Triggered by tags made with `claude plugin tag plugins/<name> --push`,
+# which are named <name>--v<version>, e.g. mentor--v1.0.0.
+on:
+  push:
+    tags: ["*--v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install tools
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          pip install pyyaml jsonschema
+
+      - name: Read plugin and version from the tag
+        id: tag
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          plugin="${tag%%--v*}"
+          version="${tag##*--v}"
+          manifest="plugins/$plugin/.claude-plugin/plugin.json"
+          [ -f "$manifest" ] || { echo "No plugin named $plugin"; exit 1; }
+          actual="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$manifest")"
+          [ "$actual" = "$version" ] || { echo "Tag says $version but plugin.json says $actual"; exit 1; }
+          echo "plugin=$plugin" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Validate
+        run: scripts/validate.sh
+
+      - name: Build skill zips
+        run: scripts/build-skill-zip.sh "${{ steps.tag.outputs.plugin }}"
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          python3 - "${{ steps.tag.outputs.plugin }}" "${{ steps.tag.outputs.version }}" <<'EOF'
+          import re, sys
+          plugin, version = sys.argv[1], sys.argv[2]
+          text = open("CHANGELOG.md", encoding="utf-8").read()
+          match = re.search(rf"^## {re.escape(plugin)} {re.escape(version)}\b.*?$(.*?)(?=^## |\Z)", text, re.M | re.S)
+          notes = match.group(1).strip() if match else f"{plugin} {version}"
+          open("release-notes.md", "w", encoding="utf-8").write(notes + "\n")
+          EOF
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/*.zip \
+            --title "${{ steps.tag.outputs.plugin }} ${{ steps.tag.outputs.version }}" \
+            --notes-file release-notes.md

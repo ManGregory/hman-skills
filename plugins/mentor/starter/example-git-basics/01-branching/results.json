@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "topic": "git-basics",
+  "subtopic": "01-branching",
+  "sessions": [
+    {
+      "session_id": "20260110-190512-k3x9",
+      "timestamp_start": "2026-01-10T19:05:12",
+      "timestamp_end": "2026-01-10T19:42:00",
+      "duration_minutes": 37,
+      "session_type": "learning",
+      "language": "en",
+      "assessment": {
+        "type": "quick_recap",
+        "score": "2/3",
+        "percentage": 67
+      },
+      "concepts_covered": [
+        "Commit as a snapshot with a parent pointer",
+        "Branch as a movable pointer",
+        "HEAD",
+        "git switch -c"
+      ],
+      "areas_strong": [
+        "Branch as a pointer, not a copy",
+        "Which pointer moves on commit"
+      ],
+      "areas_to_review": [
+        "Detached HEAD"
+      ],
+      "next_session": {
+        "review_needed": ["Detached HEAD"],
+        "ready_for": "02-merging: fast-forward and three-way merges"
+      }
+    }
+  ],
+  "metadata": {
+    "created": "2026-01-10T19:42:00",
+    "last_updated": "2026-01-10T19:42:00"
+  }
+}
