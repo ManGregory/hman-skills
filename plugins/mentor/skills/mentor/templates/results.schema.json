@@ -41,8 +41,8 @@
       "properties": {
         "session_id": {
           "type": "string",
-          "pattern": "^[0-9]{8}-[0-9]{6}-[a-z0-9]+$",
-          "description": "YYYYMMDD-HHMMSS-xxxx"
+          "pattern": "^[0-9]{8}-[0-9]{6}-[a-z0-9-]+$",
+          "description": "YYYYMMDD-HHMMSS-suffix (lowercase letters, digits, hyphens)"
         },
         "timestamp_start": { "type": "string", "description": "ISO 8601" },
         "timestamp_end": { "type": "string", "description": "ISO 8601" },
