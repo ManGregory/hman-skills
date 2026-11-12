@@ -2,9 +2,16 @@ name: Release
 
 # Triggered by tags made with `claude plugin tag plugins/<name> --push`,
 # which are named <name>--v<version>, e.g. mentor--v1.0.0.
+# It can also be started by hand from the Actions tab (Run workflow) with a
+# tag name; the workflow then creates that tag on the commit it runs on.
 on:
   push:
     tags: ["*--v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to create, <name>--v<version>, e.g. mentor--v1.0.0"
+        required: true
 
 permissions:
   contents: write
@@ -30,14 +37,18 @@ jobs:
 
       - name: Read plugin and version from the tag
         id: tag
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          tag="${GITHUB_REF_NAME}"
+          tag="$TAG"
+          case "$tag" in *--v*) ;; *) echo "Tag $tag is not <name>--v<version>"; exit 1;; esac
           plugin="${tag%%--v*}"
           version="${tag##*--v}"
           manifest="plugins/$plugin/.claude-plugin/plugin.json"
           [ -f "$manifest" ] || { echo "No plugin named $plugin"; exit 1; }
           actual="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$manifest")"
           [ "$actual" = "$version" ] || { echo "Tag says $version but plugin.json says $actual"; exit 1; }
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "plugin=$plugin" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
@@ -62,6 +73,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" dist/*.zip \
+          # --target only matters for a manual run, where the tag does not exist yet.
+          gh release create "${{ steps.tag.outputs.tag }}" dist/*.zip \
+            --target "$GITHUB_SHA" \
             --title "${{ steps.tag.outputs.plugin }} ${{ steps.tag.outputs.version }}" \
             --notes-file release-notes.md
